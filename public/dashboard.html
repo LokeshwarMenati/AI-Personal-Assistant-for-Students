@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - StudyBuddy AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Fraunces:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css?v=11">
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-small">
+                    <span>🤖</span>
+                </div>
+                <h2>StudyBuddy AI</h2>
+                <button class="sidebar-toggle" id="sidebarToggle" title="Collapse sidebar" aria-label="Collapse sidebar">
+                    ☰
+                </button>
+            </div>
+
+            <nav class="nav-menu">
+                <div class="nav-indicator" id="navIndicator"></div>
+                <button class="nav-btn active" data-section="overview">
+                    <span class="nav-icon">&#9673;</span>
+                    <span>Overview</span>
+                </button>
+                <button class="nav-btn" data-section="chat">
+                    <span class="nav-icon">💬</span>
+                    <span>Chat</span>
+                </button>
+                <button class="nav-btn" data-section="notes">
+                    <span class="nav-icon">📝</span>
+                    <span>Notes</span>
+                </button>
+                <button class="nav-btn" data-section="todos">
+                    <span class="nav-icon">✓</span>
+                    <span>To-Do List</span>
+                </button>
+                <button class="nav-btn" data-section="schedule">
+                    <span class="nav-icon">📅</span>
+                    <span>Study Planner</span>
+                </button>
+                <button class="nav-btn" data-section="flashcards">
+                    <span class="nav-icon">&#9636;</span>
+                    <span>Flashcards</span>
+                </button>
+                <button class="nav-btn" data-section="focus">
+                    <span class="nav-icon">&#9201;</span>
+                    <span>Focus Timer</span>
+                </button>
+                <button class="nav-btn" data-section="analytics">
+                    <span class="nav-icon">📊</span>
+                    <span>Analytics</span>
+                </button>
+                <button class="nav-btn" data-section="board">
+                    <span class="nav-icon">🗂️</span>
+                    <span>Kanban Board</span>
+                </button>
+                <button class="nav-btn" data-section="personalize">
+                    <span class="nav-icon">🎨</span>
+                    <span>Personalize</span>
+                </button>
+                <button class="nav-btn" data-section="collab">
+                    <span class="nav-icon">🤝</span>
+                    <span>Collaboration</span>
+                </button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="live-clock" id="liveClock">--:--</div>
+                <div class="footer-actions">
+                    <button class="theme-toggle" id="themeToggle" title="Toggle Dark Mode">
+                        <span class="theme-icon">🌙</span>
+                    </button>
+                    <button class="logout-btn" id="logoutBtn">
+                        <span class="nav-icon">🚪</span>
+                        <span>Logout</span>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="dashboard-header">
+                <div class="header-left">
+                    <h1 id="sectionTitle">Overview</h1>
+                    <p id="sectionSubtitle">Track your study progress</p>
+                </div>
+                <div class="header-right">
+                    <div class="command-bar">
+                        <input id="commandInput" type="text" placeholder="Try: add task finish math tomorrow" />
+                        <button id="commandVoiceBtn" class="voice-btn" title="Voice command">🎤</button>
+                        <button id="commandBtn" class="send-btn" title="Run command">
+                            <span class="send-icon">➤</span>
+                        </button>
+                    </div>
+                    <span class="user-name" id="userName">Student</span>
+                    <div class="user-avatar">👤</div>
+                </div>
+            </header>
+
+            <div id="errorBanner" class="error-banner hidden"></div>
+
+            <!-- Overview Section -->
+            <section id="overviewSection" class="content-section active">
+                <div class="overview-stats">
+                    <div class="stat-card">
+                        <span class="stat-label">Notes</span>
+                        <strong id="notesCount">0</strong>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Pending Tasks</span>
+                        <strong id="pendingTodosCount">0</strong>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Study Sessions</span>
+                        <strong id="scheduleCount">0</strong>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Focus Minutes</span>
+                        <strong id="focusMinutesCount">0</strong>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Flashcards</span>
+                        <strong id="flashcardsCount">0</strong>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Focus Score</span>
+                        <strong id="focusScoreCount">0</strong>
+                        <span id="focusScoreLevel" class="stat-hint">Starter</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Daily Streak</span>
+                        <strong id="streakCount">0</strong>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-label">Badges</span>
+                        <strong id="badgesCount">0</strong>
+                    </div>
+                </div>
+
+                <div class="overview-panels">
+                    <div class="overview-panel">
+                        <div class="panel-heading">
+                            <h2>Today</h2>
+                        </div>
+                        <div id="todaySnapshot" class="snapshot-list"></div>
+                    </div>
+
+                    <div class="overview-panel">
+                        <div class="panel-heading">
+                            <h2>Upcoming Study</h2>
+                        </div>
+                        <div id="upcomingStudyList" class="snapshot-list"></div>
+                    </div>
+
+                    <div class="overview-panel">
+                        <div class="panel-heading">
+                            <h2>Task Health</h2>
+                        </div>
+                        <div id="taskHealthList" class="snapshot-list"></div>
+                    </div>
+
+                    <div class="overview-panel">
+                        <div class="panel-heading">
+                            <h2>Quick Actions</h2>
+                            <span class="muted-text">Jump into momentum</span>
+                        </div>
+                        <div id="quickActions" class="quick-actions">
+                            <button class="action-chip" data-action="plan">Generate plan</button>
+                            <button class="action-chip" data-action="focus">Start focus</button>
+                            <button class="action-chip" data-action="review">Review cards</button>
+                            <button class="action-chip" data-action="task">Add task</button>
+                            <button class="action-chip" data-action="note">Add note</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="advanced-grid">
+                    <div class="overview-panel intelligence-panel">
+                        <div class="panel-heading">
+                            <div>
+                                <h2>Smart Next Actions</h2>
+                                <span class="muted-text">Priority queue generated from your work.</span>
+                            </div>
+                        </div>
+                        <div id="nextBestActions" class="intelligence-list"></div>
+                    </div>
+
+                    <div class="overview-panel">
+                        <div class="panel-heading">
+                            <div>
+                                <h2>Study Load Forecast</h2>
+                                <span class="muted-text">Next 7 days by planned minutes.</span>
+                            </div>
+                        </div>
+                        <div id="studyLoadPanel" class="study-load-panel"></div>
+                    </div>
+
+                    <div class="overview-panel">
+                        <div class="panel-heading">
+                            <div>
+                                <h2>Revision Queue</h2>
+                                <span class="muted-text">Spaced repetition status.</span>
+                            </div>
+                        </div>
+                        <div id="revisionQueuePanel" class="revision-queue-panel"></div>
+                    </div>
+                </div>
+
+                <div class="analytics-grid">
+                    <div class="overview-panel">
+                        <div class="panel-heading">
+                            <h2>Weekly Activity</h2>
+                            <span class="muted-text">Focus + reviews</span>
+                        </div>
+                        <div id="weeklyActivityChart" class="bar-chart"></div>
+                    </div>
+
+                    <div class="overview-panel">
+                        <div class="panel-heading">
+                            <h2>Mood Coach</h2>
+                            <span class="muted-text">Smart suggestion</span>
+                        </div>
+                        <div class="mood-selector" id="moodSelector">
+                            <button class="mood-btn active" data-mood="focused">Focused</button>
+                            <button class="mood-btn" data-mood="tired">Tired</button>
+                            <button class="mood-btn" data-mood="stressed">Stressed</button>
+                            <button class="mood-btn" data-mood="busy">Busy</button>
+                        </div>
+                        <div id="moodRecommendation" class="recommendation-box"></div>
+                    </div>
+
+                    <div class="overview-panel">
+                        <div class="panel-heading">
+                            <h2>Achievement Badges</h2>
+                            <span class="muted-text">Progress signals</span>
+                        </div>
+                        <div id="badgesList" class="badges-list"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Chat Section -->
+            <section id="chatSection" class="content-section">
+                <div class="chat-container">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="welcome-message">
+                            <h2>Welcome to StudyBuddy AI! 👋</h2>
+                            <p>Ask me any academic questions. I'm here to help!</p>
+                            <div class="quick-questions">
+                                <button class="quick-btn" data-question="What are the main topics in physics?">Physics Help</button>
+                                <button class="quick-btn" data-question="How do I improve my study skills?">Study Tips</button>
+                                <button class="quick-btn" data-question="Can you explain calculus?">Calculus</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chat-input-area">
+                        <div class="input-wrapper">
+                            <input
+                                type="text"
+                                id="chatInput"
+                                class="chat-input"
+                                placeholder="Type your question here..."
+                                autocomplete="off"
+                            >
+                            <button id="voiceBtn" class="voice-btn" title="Voice input">
+                                🎤
+                            </button>
+                            <button id="sendBtn" class="send-btn">
+                                <span class="send-icon">➤</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="chat-actions">
+                        <button id="clearHistoryBtn" class="action-btn secondary">Clear History</button>
+                    </div>
+                    <div class="chat-actions">
+                        <input type="file" id="pdfFile" accept="application/pdf" class="chat-file-input">
+                        <button id="uploadPdfBtn" class="action-btn">Upload and Summarize PDF</button>
+                    </div>
+                    <div id="summaryOutput" class="summary-output"></div>
+                </div>
+            </section>
+
+            <!-- Notes Section -->
+            <section id="notesSection" class="content-section">
+                <div class="section-header">
+                    <button id="addNoteBtn" class="btn btn-primary">+ Add Note</button>
+                </div>
+
+                <div class="notes-automation">
+                    <div class="overview-panel">
+                        <div class="panel-heading">
+                            <h2>AI Notes Generator</h2>
+                            <span class="muted-text">Generate summaries, key points, and questions.</span>
+                        </div>
+                        <div class="notes-ai-form">
+                            <div class="form-group">
+                                <label for="aiNoteTopic">Topic or chapter</label>
+                                <input type="text" id="aiNoteTopic" placeholder="e.g., Photosynthesis">
+                            </div>
+                            <div class="form-group">
+                                <label for="aiNoteTone">Style</label>
+                                <select id="aiNoteTone">
+                                    <option value="summary">Summary + bullets</option>
+                                    <option value="exam">Exam prep</option>
+                                    <option value="flash">Flashcard prompts</option>
+                                </select>
+                            </div>
+                            <button id="generateAiNotesBtn" class="btn btn-primary">Generate Notes</button>
+                        </div>
+                        <div id="aiNotesOutput" class="summary-output"></div>
+                    </div>
+
+                    <div class="overview-panel">
+                        <div class="panel-heading">
+                            <h2>Smart Notes Import</h2>
+                            <span class="muted-text">PDF + image OCR to notes.</span>
+                        </div>
+                        <div class="notes-import">
+                            <input type="file" id="notesPdfInput" accept="application/pdf">
+                            <button id="notesPdfBtn" class="btn secondary">Summarize PDF</button>
+                            <input type="file" id="notesImageInput" accept="image/*">
+                            <button id="notesOcrBtn" class="btn secondary">Extract Text (OCR)</button>
+                        </div>
+                        <div id="notesImportOutput" class="summary-output"></div>
+                    </div>
+                </div>
+
+                <div id="notesContainer" class="notes-grid">
+                    <!-- Notes will be dynamically added here -->
+                </div>
+
+                <!-- Add/Edit Note Modal -->
+                <div id="noteModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close-modal">&times;</span>
+                        <h2 id="noteModalTitle">Add Note</h2>
+                        <div class="form-group">
+                            <label for="noteTitle">Title</label>
+                            <input type="text" id="noteTitle" placeholder="Note title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="noteContent">Content</label>
+                            <textarea id="noteContent" placeholder="Write your note..." rows="8" required></textarea>
+                        </div>
+                        <button id="saveNoteBtn" class="btn btn-primary">Save Note</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Todos Section -->
+            <section id="todosSection" class="content-section">
+                <div class="section-header">
+                    <input
+                        type="text"
+                        id="todoInput"
+                        class="todo-input"
+                        placeholder="Add a new task..."
+                    >
+                    <input
+                        type="date"
+                        id="todoDueDate"
+                        class="todo-date-input"
+                        title="Due date"
+                    >
+                    <button id="addTodoBtn" class="btn btn-primary">+ Add Task</button>
+                </div>
+
+                <div class="todos-list">
+                    <div id="todosList">
+                        <!-- Todos will be dynamically added here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Schedule Section -->
+            <section id="scheduleSection" class="content-section">
+                <div class="section-header">
+                    <button id="addScheduleBtn" class="btn btn-primary">+ Add Schedule</button>
+                </div>
+
+                <div class="smart-planner-panel">
+                    <div class="panel-heading">
+                        <div>
+                            <h2>AI Study Planner</h2>
+                            <p class="muted-text">Generate a balanced plan from topics, deadline, and daily time.</p>
+                        </div>
+                    </div>
+                    <div class="smart-planner-form">
+                        <div class="form-group">
+                            <label for="plannerSubject">Subject</label>
+                            <input type="text" id="plannerSubject" placeholder="e.g., Mathematics">
+                        </div>
+                        <div class="form-group planner-topics">
+                            <label for="plannerTopics">Topics</label>
+                            <textarea id="plannerTopics" rows="3" placeholder="Algebra, Trigonometry, Calculus"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="plannerDeadline">Deadline</label>
+                            <input type="date" id="plannerDeadline">
+                        </div>
+                        <div class="form-group">
+                            <label for="plannerDailyMinutes">Daily Minutes</label>
+                            <input type="number" id="plannerDailyMinutes" min="20" max="240" value="60">
+                        </div>
+                        <div class="form-group">
+                            <label for="plannerStartTime">Start Time</label>
+                            <input type="time" id="plannerStartTime" value="18:00">
+                        </div>
+                        <button id="generatePlanBtn" class="btn btn-primary">Generate Plan</button>
+                    </div>
+                    <div id="plannerPreview" class="planner-preview"></div>
+                </div>
+
+                <div class="schedule-toolbar">
+                    <div class="calendar-filter">
+                        <label for="scheduleFilterDate">Calendar</label>
+                        <input type="date" id="scheduleFilterDate">
+                    </div>
+                    <button id="clearScheduleFilter" class="btn secondary">Clear</button>
+                </div>
+
+                <div class="calendar-container">
+                    <div id="fullCalendar"></div>
+                </div>
+
+                <div id="scheduleContainer" class="schedule-grid">
+                    <!-- Schedule entries will be dynamically added here -->
+                </div>
+
+                <!-- Add Schedule Modal -->
+                <div id="scheduleModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close-modal">&times;</span>
+                        <h2>Add Study Session</h2>
+                        <div class="form-group">
+                            <label for="scheduleSubject">Subject</label>
+                            <input type="text" id="scheduleSubject" placeholder="e.g., Mathematics" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="scheduleDate">Date</label>
+                            <input type="date" id="scheduleDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="scheduleStartTime">Start Time</label>
+                            <input type="time" id="scheduleStartTime" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="scheduleEndTime">End Time</label>
+                            <input type="time" id="scheduleEndTime" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="scheduleNotes">Notes (optional)</label>
+                            <textarea id="scheduleNotes" placeholder="Add any notes..." rows="3"></textarea>
+                        </div>
+                        <button id="saveScheduleBtn" class="btn btn-primary">Save Schedule</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Flashcards Section -->
+            <section id="flashcardsSection" class="content-section">
+                <div class="section-header flashcards-header">
+                    <input
+                        type="text"
+                        id="flashcardDeckFilter"
+                        class="todo-input"
+                        placeholder="Filter by deck..."
+                    >
+                    <button id="startQuizBtn" class="btn secondary">Start Quiz</button>
+                    <button id="addFlashcardBtn" class="btn btn-primary">+ Add Card</button>
+                </div>
+
+                <div class="flashcards-layout">
+                    <div id="flashcardsContainer" class="flashcards-grid">
+                        <!-- Flashcards will be dynamically added here -->
+                    </div>
+
+                    <aside class="quiz-panel">
+                        <div class="panel-heading">
+                            <h2>Quiz Mode</h2>
+                            <span id="quizProgress" class="muted-text">0 / 0</span>
+                        </div>
+                        <div class="quiz-progress-track">
+                            <div id="quizProgressBar" class="quiz-progress-bar"></div>
+                        </div>
+                        <div id="revisionSummary" class="revision-summary"></div>
+                        <div id="quizCard" class="quiz-card">
+                            <p class="muted-text">Add flashcards, then start a quiz.</p>
+                        </div>
+                        <div class="quiz-actions">
+                            <button id="revealAnswerBtn" class="btn secondary">Reveal</button>
+                            <button id="againCardBtn" class="btn secondary">Again</button>
+                            <button id="knownCardBtn" class="btn btn-primary">Got It</button>
+                        </div>
+                    </aside>
+                </div>
+
+                <!-- Add/Edit Flashcard Modal -->
+                <div id="flashcardModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close-modal">&times;</span>
+                        <h2 id="flashcardModalTitle">Add Flashcard</h2>
+                        <div class="form-group">
+                            <label for="flashcardDeck">Deck</label>
+                            <input type="text" id="flashcardDeck" placeholder="e.g., Biology Chapter 1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="flashcardFront">Question</label>
+                            <textarea id="flashcardFront" placeholder="Write the prompt..." rows="4" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="flashcardBack">Answer</label>
+                            <textarea id="flashcardBack" placeholder="Write the answer..." rows="4" required></textarea>
+                        </div>
+                        <button id="saveFlashcardBtn" class="btn btn-primary">Save Flashcard</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Focus Timer Section -->
+            <section id="focusSection" class="content-section">
+                <div class="focus-layout">
+                    <div class="focus-panel">
+                        <div class="panel-heading">
+                            <h2>Focus Session</h2>
+                            <span id="focusModeLabel" class="status-pill">Focus</span>
+                        </div>
+
+                        <div class="focus-progress" id="focusProgress">
+                            <div class="focus-timer" id="focusTimerDisplay">25:00</div>
+                        </div>
+
+                        <div class="focus-controls">
+                            <button id="startFocusBtn" class="btn btn-primary">Start</button>
+                            <button id="pauseFocusBtn" class="btn secondary">Pause</button>
+                            <button id="resetFocusBtn" class="btn secondary">Reset</button>
+                        </div>
+
+                        <div class="focus-settings">
+                            <div class="form-group">
+                                <label for="focusSubject">Subject</label>
+                                <input type="text" id="focusSubject" placeholder="What are you studying?">
+                            </div>
+                            <div class="timer-inputs">
+                                <div class="form-group">
+                                    <label for="focusMinutes">Focus Minutes</label>
+                                    <input type="number" id="focusMinutes" min="1" max="120" value="25">
+                                </div>
+                                <div class="form-group">
+                                    <label for="breakMinutes">Break Minutes</label>
+                                    <input type="number" id="breakMinutes" min="1" max="60" value="5">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="focus-panel">
+                        <div class="panel-heading">
+                            <h2>Recent Focus Log</h2>
+                            <button id="clearFocusLogBtn" class="btn secondary">Clear</button>
+                        </div>
+                        <div id="focusLogList" class="focus-log-list">
+                            <!-- Focus logs will be dynamically added here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analytics Section -->
+            <section id="analyticsSection" class="content-section">
+                <div class="analytics-layout">
+                    <div class="overview-panel">
+                        <div class="panel-heading">
+                            <h2>Study Hours</h2>
+                            <span class="muted-text">Weekly focus minutes</span>
+                        </div>
+                        <canvas id="focusChart" height="220"></canvas>
+                    </div>
+                    <div class="overview-panel">
+                        <div class="panel-heading">
+                            <h2>Task Completion</h2>
+                            <span class="muted-text">Pending vs done</span>
+                        </div>
+                        <canvas id="tasksChart" height="220"></canvas>
+                    </div>
+                    <div class="overview-panel">
+                        <div class="panel-heading">
+                            <h2>Revision Load</h2>
+                            <span class="muted-text">Flashcards due</span>
+                        </div>
+                        <canvas id="flashChart" height="220"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Kanban Board Section -->
+            <section id="boardSection" class="content-section">
+                <div class="section-header">
+                    <input id="boardTaskInput" class="todo-input" placeholder="New board task...">
+                    <button id="addBoardTaskBtn" class="btn btn-primary">+ Add Card</button>
+                </div>
+                <div class="kanban-board" id="kanbanBoard">
+                    <div class="kanban-column" data-status="todo">
+                        <h3>To Do</h3>
+                        <div class="kanban-list" id="kanbanTodo"></div>
+                    </div>
+                    <div class="kanban-column" data-status="progress">
+                        <h3>In Progress</h3>
+                        <div class="kanban-list" id="kanbanProgress"></div>
+                    </div>
+                    <div class="kanban-column" data-status="done">
+                        <h3>Done</h3>
+                        <div class="kanban-list" id="kanbanDone"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Personalize Section -->
+            <section id="personalizeSection" class="content-section">
+                <div class="personalize-grid">
+                    <div class="overview-panel">
+                        <div class="panel-heading">
+                            <h2>Theme Presets</h2>
+                            <span class="muted-text">Switch mood instantly</span>
+                        </div>
+                        <div class="theme-options">
+                            <button class="theme-pill" data-theme="default">Default</button>
+                            <button class="theme-pill" data-theme="light">Light</button>
+                            <button class="theme-pill" data-theme="neon">Neon</button>
+                        </div>
+                    </div>
+                    <div class="overview-panel">
+                        <div class="panel-heading">
+                            <h2>Accent Color</h2>
+                            <span class="muted-text">Personalize highlights</span>
+                        </div>
+                        <input type="color" id="accentPicker" value="#6c63ff">
+                    </div>
+                    <div class="overview-panel">
+                        <div class="panel-heading">
+                            <h2>Notifications</h2>
+                            <span class="muted-text">Reminders + smart nudges</span>
+                        </div>
+                        <div class="notify-settings">
+                            <button id="enableNotificationsBtn" class="btn secondary">Enable Notifications</button>
+                            <button id="scheduleReminderBtn" class="btn btn-primary">Schedule Study Reminder</button>
+                            <div class="form-group">
+                                <label for="reminderTime">Reminder time</label>
+                                <input type="time" id="reminderTime" value="18:00">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Collaboration Section -->
+            <section id="collabSection" class="content-section">
+                <div class="collab-layout">
+                    <div class="overview-panel">
+                        <div class="panel-heading">
+                            <h2>Shared Study Notes</h2>
+                            <span class="muted-text">Live updates with teammates</span>
+                        </div>
+                        <textarea id="sharedNote" rows="10" placeholder="Type a shared note..."></textarea>
+                    </div>
+                    <div class="overview-panel">
+                        <div class="panel-heading">
+                            <h2>Live Study Chat</h2>
+                            <span class="muted-text">Room-based collaboration</span>
+                        </div>
+                        <div id="collabMessages" class="collab-messages"></div>
+                        <div class="collab-input">
+                            <input id="collabInput" type="text" placeholder="Send a message...">
+                            <button id="collabSendBtn" class="btn btn-primary">Send</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="loading-spinner hidden">
+        <div class="spinner"></div>
+    </div>
+
+    <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js"></script>
+    <script src="js/dashboard.js?v=11"></script>
+    <script src="js/chat.js?v=7"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+            });
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudyBuddy AI - Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Fraunces:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css?v=11">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-backdrop"></div>
+        <div class="auth-orb orb-one"></div>
+        <div class="auth-orb orb-two"></div>
+        <div class="auth-card glass-card">
+            <!-- Logo Section -->
+            <div class="auth-header">
+                <div class="logo">
+                    <span class="logo-icon">🤖</span>
+                </div>
+                <h1>StudyBuddy AI</h1>
+                <p>Personal AI assistant for focused learners.</p>
+            </div>
+
+            <!-- Toggle Buttons -->
+            <div class="toggle-buttons">
+                <button class="toggle-btn active" id="loginToggle">Sign In</button>
+                <button class="toggle-btn" id="registerToggle">Sign Up</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" class="auth-form active">
+                <div class="form-group floating-field">
+                    <input type="email" id="loginEmail" placeholder=" " required>
+                    <label for="loginEmail">Email address</label>
+                </div>
+
+                <div class="form-group floating-field">
+                    <input type="password" id="loginPassword" placeholder=" " required>
+                    <label for="loginPassword">Password</label>
+                    <button type="button" class="field-toggle" data-target="loginPassword" aria-label="Show password">Show</button>
+                </div>
+
+                <div class="auth-row">
+                    <label class="checkbox-field">
+                        <input type="checkbox" id="rememberMe">
+                        <span>Remember me</span>
+                    </label>
+                    <button type="button" class="link-btn" id="forgotPasswordBtn">Forgot password?</button>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">
+                    <span class="btn-text">Sign In</span>
+                    <span class="btn-loader loader-hidden"></span>
+                </button>
+
+                <button type="button" class="btn secondary btn-block" id="googleLoginBtn">
+                    Continue with Google
+                </button>
+
+                <div id="loginError" class="error-message"></div>
+            </form>
+
+            <!-- Register Form -->
+            <form id="registerForm" class="auth-form">
+                <div class="form-group floating-field">
+                    <input type="text" id="registerName" placeholder=" " required>
+                    <label for="registerName">Full name</label>
+                </div>
+
+                <div class="form-group floating-field">
+                    <input type="email" id="registerEmail" placeholder=" " required>
+                    <label for="registerEmail">Email address</label>
+                </div>
+
+                <div class="form-group floating-field">
+                    <input type="password" id="registerPassword" placeholder=" " required>
+                    <label for="registerPassword">Create password</label>
+                    <button type="button" class="field-toggle" data-target="registerPassword" aria-label="Show password">Show</button>
+                </div>
+
+                <div class="form-group floating-field">
+                    <input type="password" id="registerConfirmPassword" placeholder=" " required>
+                    <label for="registerConfirmPassword">Confirm password</label>
+                    <button type="button" class="field-toggle" data-target="registerConfirmPassword" aria-label="Show password">Show</button>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block">
+                    <span class="btn-text">Create Account</span>
+                    <span class="btn-loader loader-hidden"></span>
+                </button>
+
+                <div id="registerError" class="error-message"></div>
+            </form>
+
+            <!-- Dark Mode Toggle -->
+            <button class="theme-toggle" id="themeToggle" title="Toggle Dark Mode">
+                <span class="theme-icon">🌙</span>
+            </button>
+        </div>
+    </div>
+
+    <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+    <script src="js/auth.js?v=2"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+            });
+        }
+    </script>
+</body>
+</html>

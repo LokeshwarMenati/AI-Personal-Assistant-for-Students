@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Login - StudyBuddy AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Fraunces:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css?v=11">
+    <meta name="theme-color" content="#0f172a">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-backdrop"></div>
+        <div class="auth-card glass-card oauth-status-card">
+            <div class="auth-header">
+                <div class="logo">
+                    <span class="logo-icon">SB</span>
+                </div>
+                <h1>Google Login</h1>
+                <p id="oauthStatusText">Completing sign in...</p>
+            </div>
+            <a id="oauthBackLink" class="btn secondary btn-block hidden" href="/">Back to login</a>
+        </div>
+    </div>
+
+    <script src="js/oauth-callback.js?v=1"></script>
+</body>
+</html>
