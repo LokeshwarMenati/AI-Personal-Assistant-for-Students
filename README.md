@@ -40,3 +40,4 @@ git clone https://github.com/LokeshwarMenati/AI-Personal-Assistant-for-Students.
 cd AI-Personal-Assistant-for-Students
 npm install
 npm start
+https://agent-69f240--ai-personal-assistant-for-students.netlify.app
