@@ -31,7 +31,7 @@ A modern AI-powered web application that helps students manage their studies eff
 
 _Add your project screenshots here_
 
----
+--
 
 ## ⚙️ Installation
 
