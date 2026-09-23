@@ -7,12 +7,22 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Fraunces:wght@600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/styles.css?v=11">
+    <link rel="stylesheet" href="css/styles.css?v=21">
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0f172a">
 </head>
-<body>
+<body class="dark-mode">
+    <!-- Google Antigravity Zero-G Motion Background -->
+    <div class="aurora-bg">
+        <div class="aurora-blob blob-1"></div>
+        <div class="aurora-blob blob-2"></div>
+        <div class="aurora-blob blob-3"></div>
+        <div class="aurora-blob blob-4"></div>
+    </div>
+    <div class="antigravity-grid"></div>
+    <canvas id="dashboardAmbientCanvas" class="ambient-canvas"></canvas>
+    <canvas id="confettiCanvas" class="confetti-canvas"></canvas>
     <div class="dashboard-container">
         <!-- Sidebar Navigation -->
         <aside class="sidebar" id="sidebar">
@@ -28,47 +38,47 @@
 
             <nav class="nav-menu">
                 <div class="nav-indicator" id="navIndicator"></div>
-                <button class="nav-btn active" data-section="overview">
+                <button class="nav-btn active" data-section="overview" title="Overview">
                     <span class="nav-icon">&#9673;</span>
                     <span>Overview</span>
                 </button>
-                <button class="nav-btn" data-section="chat">
+                <button class="nav-btn" data-section="chat" title="AI Tutor Chat">
                     <span class="nav-icon">💬</span>
                     <span>Chat</span>
                 </button>
-                <button class="nav-btn" data-section="notes">
+                <button class="nav-btn" data-section="notes" title="Notes & Summaries">
                     <span class="nav-icon">📝</span>
                     <span>Notes</span>
                 </button>
-                <button class="nav-btn" data-section="todos">
+                <button class="nav-btn" data-section="todos" title="To-Do Tasks">
                     <span class="nav-icon">✓</span>
                     <span>To-Do List</span>
                 </button>
-                <button class="nav-btn" data-section="schedule">
+                <button class="nav-btn" data-section="schedule" title="Study Planner">
                     <span class="nav-icon">📅</span>
                     <span>Study Planner</span>
                 </button>
-                <button class="nav-btn" data-section="flashcards">
+                <button class="nav-btn" data-section="flashcards" title="Flashcards">
                     <span class="nav-icon">&#9636;</span>
                     <span>Flashcards</span>
                 </button>
-                <button class="nav-btn" data-section="focus">
+                <button class="nav-btn" data-section="focus" title="Focus Timer">
                     <span class="nav-icon">&#9201;</span>
                     <span>Focus Timer</span>
                 </button>
-                <button class="nav-btn" data-section="analytics">
+                <button class="nav-btn" data-section="analytics" title="Analytics & Progress">
                     <span class="nav-icon">📊</span>
                     <span>Analytics</span>
                 </button>
-                <button class="nav-btn" data-section="board">
+                <button class="nav-btn" data-section="board" title="Kanban Board">
                     <span class="nav-icon">🗂️</span>
                     <span>Kanban Board</span>
                 </button>
-                <button class="nav-btn" data-section="personalize">
+                <button class="nav-btn" data-section="personalize" title="Personalize Theme">
                     <span class="nav-icon">🎨</span>
                     <span>Personalize</span>
                 </button>
-                <button class="nav-btn" data-section="collab">
+                <button class="nav-btn" data-section="collab" title="Collaboration Hub">
                     <span class="nav-icon">🤝</span>
                     <span>Collaboration</span>
                 </button>
@@ -77,26 +87,35 @@
             <div class="sidebar-footer">
                 <div class="live-clock" id="liveClock">--:--</div>
                 <div class="footer-actions">
-                    <button class="theme-toggle" id="themeToggle" title="Toggle Dark Mode">
+                    <button class="theme-toggle" id="themeToggle" title="Toggle Dark/Light Mode">
                         <span class="theme-icon">🌙</span>
                     </button>
-                    <button class="logout-btn" id="logoutBtn">
+                    <button class="logout-btn" id="logoutBtn" title="Logout">
                         <span class="nav-icon">🚪</span>
                         <span>Logout</span>
                     </button>
                 </div>
             </div>
         </aside>
+        <div class="sidebar-backdrop" id="sidebarBackdrop" aria-hidden="true"></div>
 
         <!-- Main Content -->
         <main class="main-content">
             <!-- Header -->
             <header class="dashboard-header">
                 <div class="header-left">
-                    <h1 id="sectionTitle">Overview</h1>
-                    <p id="sectionSubtitle">Track your study progress</p>
+                    <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle navigation menu" title="Open Menu">
+                        <span>☰</span>
+                    </button>
+                    <div>
+                        <h1 id="sectionTitle">Overview</h1>
+                        <p id="sectionSubtitle">Track your study progress</p>
+                    </div>
                 </div>
                 <div class="header-right">
+                    <button id="openCommandPaletteBtn" class="soundscape-btn" title="Open Quick Command Palette (Ctrl+K)" style="font-family: inherit;">
+                        ⚡ <kbd style="font-family: monospace; font-size: 0.75rem; background: rgba(255,255,255,0.1); padding: 2px 6px; border-radius: 4px;">Ctrl+K</kbd>
+                    </button>
                     <div class="command-bar">
                         <input id="commandInput" type="text" placeholder="Try: add task finish math tomorrow" />
                         <button id="commandVoiceBtn" class="voice-btn" title="Voice command">🎤</button>
@@ -115,36 +134,60 @@
             <section id="overviewSection" class="content-section active">
                 <div class="overview-stats">
                     <div class="stat-card">
-                        <span class="stat-label">Notes</span>
+                        <div class="stat-header">
+                            <span class="stat-icon-badge">📝</span>
+                            <span class="stat-label">Notes</span>
+                        </div>
                         <strong id="notesCount">0</strong>
                     </div>
                     <div class="stat-card">
-                        <span class="stat-label">Pending Tasks</span>
+                        <div class="stat-header">
+                            <span class="stat-icon-badge">✓</span>
+                            <span class="stat-label">Pending Tasks</span>
+                        </div>
                         <strong id="pendingTodosCount">0</strong>
                     </div>
                     <div class="stat-card">
-                        <span class="stat-label">Study Sessions</span>
+                        <div class="stat-header">
+                            <span class="stat-icon-badge">📅</span>
+                            <span class="stat-label">Study Sessions</span>
+                        </div>
                         <strong id="scheduleCount">0</strong>
                     </div>
                     <div class="stat-card">
-                        <span class="stat-label">Focus Minutes</span>
+                        <div class="stat-header">
+                            <span class="stat-icon-badge">⏱️</span>
+                            <span class="stat-label">Focus Minutes</span>
+                        </div>
                         <strong id="focusMinutesCount">0</strong>
                     </div>
                     <div class="stat-card">
-                        <span class="stat-label">Flashcards</span>
+                        <div class="stat-header">
+                            <span class="stat-icon-badge">🎴</span>
+                            <span class="stat-label">Flashcards</span>
+                        </div>
                         <strong id="flashcardsCount">0</strong>
                     </div>
                     <div class="stat-card">
-                        <span class="stat-label">Focus Score</span>
+                        <div class="stat-header">
+                            <span class="stat-icon-badge">🎯</span>
+                            <span class="stat-label">Focus Score</span>
+                        </div>
                         <strong id="focusScoreCount">0</strong>
                         <span id="focusScoreLevel" class="stat-hint">Starter</span>
                     </div>
                     <div class="stat-card">
-                        <span class="stat-label">Daily Streak</span>
+                        <div class="stat-header">
+                            <span class="stat-icon-badge flame-badge">🔥</span>
+                            <span class="stat-label">Daily Streak</span>
+                        </div>
                         <strong id="streakCount">0</strong>
                     </div>
                     <div class="stat-card">
-                        <span class="stat-label">Badges</span>
+                        <div class="stat-header">
+                            <span class="stat-icon-badge">🏆</span>
+                            <span class="stat-label">Badges</span>
+                        </div>
                         <strong id="badgesCount">0</strong>
                     </div>
                 </div>
@@ -179,6 +222,7 @@
                         <div id="quickActions" class="quick-actions">
                             <button class="action-chip" data-action="plan">Generate plan</button>
                             <button class="action-chip" data-action="focus">Start focus</button>
+                            <button class="action-chip" data-action="quiz" style="background: rgba(108, 99, 255, 0.18); border-color: var(--primary-light); color: var(--primary-color); font-weight: 600;">⚡ AI Quiz</button>
                             <button class="action-chip" data-action="review">Review cards</button>
                             <button class="action-chip" data-action="task">Add task</button>
                             <button class="action-chip" data-action="note">Add note</button>
@@ -481,7 +525,8 @@
                         class="todo-input"
                         placeholder="Filter by deck..."
                     >
-                    <button id="startQuizBtn" class="btn secondary">Start Quiz</button>
+                    <button id="startQuizBtn" class="btn secondary">Review Quiz</button>
+                    <button id="openAiQuizModalBtn" class="btn secondary" style="border-color: var(--primary-light); color: var(--primary-color); font-weight: 600;">⚡ AI Quiz Simulator</button>
                     <button id="addFlashcardBtn" class="btn btn-primary">+ Add Card</button>
                 </div>
 
@@ -541,14 +586,44 @@
                             <span id="focusModeLabel" class="status-pill">Focus</span>
                         </div>
 
-                        <div class="focus-progress" id="focusProgress">
-                            <div class="focus-timer" id="focusTimerDisplay">25:00</div>
+                        <div class="radial-timer-container" id="radialTimerContainer">
+                            <div class="timer-breathe-aura"></div>
+                            <svg class="radial-timer-svg" viewBox="0 0 240 240">
+                                <defs>
+                                    <linearGradient id="timerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="var(--primary-color)" />
+                                        <stop offset="100%" stop-color="var(--secondary-color)" />
+                                    </linearGradient>
+                                </defs>
+                                <circle class="radial-timer-bg" cx="120" cy="120" r="105" />
+                                <circle class="radial-timer-progress" id="radialTimerProgress" cx="120" cy="120" r="105" />
+                            </svg>
+                            <div class="radial-timer-center">
+                                <div class="focus-timer" id="focusTimerDisplay">25:00</div>
+                                <span class="muted-text" id="radialTimerHint" style="font-size:0.75rem; letter-spacing: 0.05em; text-transform: uppercase;">Ready</span>
+                            </div>
+                        </div>
+
+                        <div class="timer-presets" style="display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 1.25rem;">
+                            <button class="soundscape-btn" data-preset="15">⚡ 15m Sprint</button>
+                            <button class="soundscape-btn active" data-preset="25">🎯 25m Pomodoro</button>
+                            <button class="soundscape-btn" data-preset="50">🔥 50m Deep Work</button>
                         </div>
 
                         <div class="focus-controls">
                             <button id="startFocusBtn" class="btn btn-primary">Start</button>
                             <button id="pauseFocusBtn" class="btn secondary">Pause</button>
                             <button id="resetFocusBtn" class="btn secondary">Reset</button>
+                        </div>
+
+                        <!-- Native Ambient Soundscapes Generator -->
+                        <div class="soundscapes-bar">
+                            <span class="soundscapes-label">🎧 Ambient Audio:</span>
+                            <button class="soundscape-btn" data-sound="rain">🌧️ Rain</button>
+                            <button class="soundscape-btn" data-sound="whitenoise">🌊 Waves</button>
+                            <button class="soundscape-btn" data-sound="cafe">☕ Cafe</button>
+                            <button class="soundscape-btn" data-sound="alpha">🧠 Alpha Beats</button>
+                            <input type="range" class="sound-volume-slider" id="soundVolume" min="0" max="1" step="0.05" value="0.4" title="Sound Volume">
                         </div>
 
                         <div class="focus-settings">
@@ -583,27 +658,95 @@
 
             <!-- Analytics Section -->
             <section id="analyticsSection" class="content-section">
+                <!-- Analytics Metrics Summary -->
+                <div class="analytics-metrics-grid">
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-icon-badge">⏱️</span>
+                            <span class="stat-label">Total Focus Time</span>
+                        </div>
+                        <strong id="analyticsTotalFocus">0 hrs</strong>
+                        <span class="stat-hint" style="color: #10b981;">↑ +18% study velocity</span>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-icon-badge">🎯</span>
+                            <span class="stat-label">Productivity Score</span>
+                        </div>
+                        <strong id="analyticsProductivityScore">88/100</strong>
+                        <span class="stat-hint" style="color: #00f0ff;">Optimal Focus Zone</span>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-icon-badge">✓</span>
+                            <span class="stat-label">Tasks Completed</span>
+                        </div>
+                        <strong id="analyticsTasksCompleted">0</strong>
+                        <span class="stat-hint" style="color: #a855f7;">Tasks finished this week</span>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-header">
+                            <span class="stat-icon-badge">🧠</span>
+                            <span class="stat-label">Memory Retention</span>
+                        </div>
+                        <strong id="analyticsRetentionRate">92%</strong>
+                        <span class="stat-hint" style="color: #fbbc04;">Active recall mastery</span>
+                    </div>
+                </div>
+
+                <!-- Charts Layout -->
                 <div class="analytics-layout">
                     <div class="overview-panel">
                         <div class="panel-heading">
-                            <h2>Study Hours</h2>
-                            <span class="muted-text">Weekly focus minutes</span>
+                            <h2>Weekly Focus Minutes</h2>
+                            <span class="muted-text">Daily focus trend (mins)</span>
                         </div>
-                        <canvas id="focusChart" height="220"></canvas>
+                        <div class="chart-wrapper">
+                            <canvas id="focusChart"></canvas>
+                        </div>
                     </div>
                     <div class="overview-panel">
                         <div class="panel-heading">
                             <h2>Task Completion</h2>
-                            <span class="muted-text">Pending vs done</span>
+                            <span class="muted-text">Completed daily tasks</span>
                         </div>
-                        <canvas id="tasksChart" height="220"></canvas>
+                        <div class="chart-wrapper">
+                            <canvas id="tasksChart"></canvas>
+                        </div>
                     </div>
                     <div class="overview-panel">
                         <div class="panel-heading">
-                            <h2>Revision Load</h2>
-                            <span class="muted-text">Flashcards due</span>
+                            <h2>Revision & Mastery</h2>
+                            <span class="muted-text">Flashcards due vs reviewed</span>
                         </div>
-                        <canvas id="flashChart" height="220"></canvas>
+                        <div class="chart-wrapper">
+                            <canvas id="flashChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Study Pattern Insights -->
+                <div class="overview-panel" style="margin-top: 1rem;">
+                    <div class="panel-heading">
+                        <div style="display: flex; align-items: center; gap: 0.65rem;">
+                            <span style="font-size: 1.4rem;">💡</span>
+                            <h2 style="margin: 0;">AI Learning Pattern Insights</h2>
+                        </div>
+                        <span class="badge" style="background: rgba(0, 240, 255, 0.15); color: #00f0ff; border: 1px solid rgba(0, 240, 255, 0.3);">Real-Time Intelligence</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-top: 0.5rem;">
+                        <div style="padding: 1rem; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);">
+                            <div style="font-weight: 600; color: #f9fafb; margin-bottom: 0.25rem;">⚡ Peak Focus Window</div>
+                            <div style="font-size: 0.88rem; color: #94a3b8;">Your retention is highest between 10:00 AM - 1:00 PM. Schedule challenging topics like Calculus during this window.</div>
+                        </div>
+                        <div style="padding: 1rem; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);">
+                            <div style="font-weight: 600; color: #f9fafb; margin-bottom: 0.25rem;">📈 Consistency Projection</div>
+                            <div style="font-size: 0.88rem; color: #94a3b8;">Maintaining your current streak for 4 more days will unlock the "Cognitive Titan" achievement badge!</div>
+                        </div>
+                        <div style="padding: 1rem; border-radius: 12px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);">
+                            <div style="font-weight: 600; color: #f9fafb; margin-bottom: 0.25rem;">🎯 Spaced Repetition Advice</div>
+                            <div style="font-size: 0.88rem; color: #94a3b8;">Review your 3 hardest Biology flashcards before 9:00 PM tonight to maximize synaptic memory consolidation.</div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -699,19 +842,70 @@
         <div class="spinner"></div>
     </div>
 
+    <!-- Universal Command Palette Modal (Ctrl+K) -->
+    <div id="commandPaletteModal" class="command-palette-backdrop hidden">
+        <div class="command-palette-box">
+            <div class="command-palette-input-wrap">
+                <span class="command-palette-icon">⚡</span>
+                <input type="text" id="paletteInput" class="command-palette-input" placeholder="Type a command or jump to section (e.g. chat, notes, focus, timer, task)..." autocomplete="off" />
+                <span class="command-badge">ESC</span>
+            </div>
+            <div id="paletteResults" class="command-palette-results">
+                <!-- Dynamic command items populated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Quiz Simulator Modal -->
+    <div id="aiQuizModal" class="command-palette-backdrop hidden">
+        <div class="quiz-modal-box">
+            <span class="close-modal" id="closeAiQuizModalBtn" style="position: absolute; right: 1.5rem; top: 1.25rem; font-size: 1.5rem; cursor: pointer;">&times;</span>
+            <div class="panel-heading" style="margin-bottom: 1rem;">
+                <h2>⚡ AI Study Quiz Simulator</h2>
+                <span class="muted-text">Test your mastery in real-time</span>
+            </div>
+            <div id="quizSetupView">
+                <div class="form-group">
+                    <label for="quizTopicInput">Quiz Subject or Chapter</label>
+                    <input type="text" id="quizTopicInput" placeholder="e.g., Photosynthesis, Calculus, Newton's Laws, Organic Chemistry..." />
+                </div>
+                <div style="display: flex; gap: 0.75rem; margin-top: 1.25rem;">
+                    <button id="generateQuizSubmitBtn" class="btn btn-primary" style="flex: 1;">Generate AI Quiz</button>
+                </div>
+            </div>
+            <div id="quizActiveView" class="hidden">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <span id="quizActiveCounter" class="muted-text" style="font-weight: 600;">Question 1 of 3</span>
+                    <span id="quizScoreDisplay" class="status-pill" style="font-weight: 700;">Score: 0</span>
+                </div>
+                <h3 id="quizQuestionText" style="font-size: 1.15rem; margin-bottom: 1.25rem; line-height: 1.4;">Question text here?</h3>
+                <div id="quizOptionsContainer"></div>
+                <div id="quizExplanationBox" class="recommendation-box hidden" style="margin-top: 1rem;"></div>
+                <div style="display: flex; justify-content: flex-end; margin-top: 1.25rem;">
+                    <button id="quizNextBtn" class="btn btn-primary hidden">Next Question →</button>
+                    <button id="quizFinishBtn" class="btn btn-primary hidden">Finish Quiz 🎉</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="toastContainer" class="toast-container" aria-live="polite"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js"></script>
-    <script src="js/dashboard.js?v=11"></script>
-    <script src="js/chat.js?v=7"></script>
+    <script src="js/antigravity-bg.js?v=21"></script>
+    <script src="js/dashboard.js?v=21"></script>
+    <script src="js/chat.js?v=21"></script>
     <script>
         if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+            navigator.serviceWorker.getRegistrations().then(registrations => {
+                for (let registration of registrations) {
+                    registration.unregister();
+                }
             });
+            caches.keys().then(keys => Promise.all(keys.map(k => caches.delete(k))));
         }
     </script>
 </body>

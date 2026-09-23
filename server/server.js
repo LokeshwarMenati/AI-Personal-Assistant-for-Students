@@ -266,7 +266,6 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
-app.use('/api/chat', chatRoutes);
 
 app.post('/upload-pdf', upload.single('pdf'), async (req, res) => {
     const filePath = req.file?.path;
@@ -389,6 +388,8 @@ app.post('/api/chat/send', async (req, res) => {
     }
 });
 
+app.use('/api/chat', chatRoutes);
+
 app.post('/api/notes/generate', async (req, res) => {
     try {
         const topic = String(req.body?.topic || '').trim();
@@ -434,6 +435,165 @@ app.post('/api/notes/generate', async (req, res) => {
     } catch (error) {
         console.error('Notes generation error:', error);
         return res.status(200).json({ notes: generateNotesOutline(req.body?.topic, req.body?.tone), source: 'local' });
+    }
+});
+
+function generateMockQuiz(topic) {
+    const safeTopic = String(topic || 'General Science').trim();
+    const lower = safeTopic.toLowerCase();
+
+    if (lower.includes('photo') || lower.includes('bio') || lower.includes('plant')) {
+        return [
+            {
+                question: "What primary pigment absorbs light in plant leaves for photosynthesis?",
+                options: ["Chlorophyll", "Hemoglobin", "Carotenoid", "Anthocyanin"],
+                answer: 0,
+                explanation: "Chlorophyll a and b are the main pigments absorbing blue and red light in chloroplasts."
+            },
+            {
+                question: "Which gas is absorbed by plants during the light-independent reactions?",
+                options: ["Oxygen", "Carbon Dioxide", "Nitrogen", "Hydrogen"],
+                answer: 1,
+                explanation: "Plants take in carbon dioxide (CO2) from the air to synthesize glucose."
+            },
+            {
+                question: "Where do the light-dependent reactions of photosynthesis take place?",
+                options: ["Stroma", "Thylakoid membranes", "Mitochondrial matrix", "Cytoplasm"],
+                answer: 1,
+                explanation: "Thylakoids contain the chlorophyll pigments and electron transport chains."
+            }
+        ];
+    } else if (lower.includes('calc') || lower.includes('math') || lower.includes('deriv')) {
+        return [
+            {
+                question: "What is the derivative of f(x) = x^3 - 4x + 7 with respect to x?",
+                options: ["3x^2 - 4", "3x^2 + 4", "x^2 - 4", "3x^3 - 4x"],
+                answer: 0,
+                explanation: "Using the power rule: d/dx(x^3) = 3x^2 and d/dx(-4x) = -4."
+            },
+            {
+                question: "What does the definite integral of a positive function represent geometrically?",
+                options: ["The slope of tangent line", "The area under the curve", "The rate of acceleration", "The radius of curvature"],
+                answer: 1,
+                explanation: "The definite integral calculates the signed net area between the curve and the x-axis."
+            },
+            {
+                question: "If the limit of f(x) as x approaches c equals f(c), what is f(x) called at c?",
+                options: ["Differentiable", "Continuous", "Invertible", "Asymptotic"],
+                answer: 1,
+                explanation: "Continuity at a point requires the limit to exist and equal the function's value."
+            }
+        ];
+    } else if (lower.includes('physic') || lower.includes('force') || lower.includes('motion')) {
+        return [
+            {
+                question: "According to Newton's Second Law, Force is equal to:",
+                options: ["Mass divided by Acceleration", "Mass times Acceleration (F = ma)", "Work divided by Time", "Momentum times Velocity"],
+                answer: 1,
+                explanation: "Newton's second law states that Force = mass × acceleration."
+            },
+            {
+                question: "What is the unit of work or energy in the International System (SI)?",
+                options: ["Watt", "Newton", "Joule", "Pascal"],
+                answer: 2,
+                explanation: "Work is Force × Distance, measured in Joules (J = N·m)."
+            },
+            {
+                question: "Which of the following remains constant in an elastic collision?",
+                options: ["Only kinetic energy", "Only momentum", "Both momentum and kinetic energy", "Neither momentum nor kinetic energy"],
+                answer: 2,
+                explanation: "In an elastic collision, total linear momentum and total kinetic energy are both conserved."
+            }
+        ];
+    }
+
+    return [
+        {
+            question: `What is the fundamental objective when studying ${safeTopic}?`,
+            options: [
+                `Understanding core principles & mechanisms of ${safeTopic}`,
+                "Memorizing formulas without application",
+                "Avoiding practical problem-solving",
+                "Skipping foundational concepts"
+            ],
+            answer: 0,
+            explanation: `Mastering ${safeTopic} requires building strong conceptual foundations and problem-solving skills.`
+        },
+        {
+            question: `Which technique provides the highest retention when revising ${safeTopic}?`,
+            options: [
+                "Passive re-reading",
+                "Active recall and spaced repetition",
+                "Cramming the night before",
+                "Only highlighting textbooks"
+            ],
+            answer: 1,
+            explanation: "Active recall and spaced repetition strengthen long-term memory encoding."
+        },
+        {
+            question: `How should complex problems in ${safeTopic} be approached?`,
+            options: [
+                "Break the problem into smaller identifiable steps",
+                "Guess the answer immediately",
+                "Skip checking boundary conditions",
+                "Rely solely on intuition"
+            ],
+            answer: 0,
+            explanation: "Deconstructing problems into knowns, unknowns, and linking formulas leads to higher accuracy."
+        }
+    ];
+}
+
+app.post('/api/quiz/generate', async (req, res) => {
+    try {
+        const topic = String(req.body?.topic || '').trim();
+        if (!topic) {
+            return res.status(400).json({ error: 'Topic is required' });
+        }
+
+        const apiKey = process.env.GEMINI_API_KEY;
+        if (!apiKey) {
+            return res.status(200).json({ questions: generateMockQuiz(topic), source: 'local' });
+        }
+
+        const response = await fetch(
+            `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{
+                        parts: [{
+                            text: [
+                                'Generate a 3-question multiple choice quiz for students on the topic: ' + topic,
+                                'Return ONLY valid JSON in this exact structure, with no markdown code fences:',
+                                '[{"question": "...", "options": ["A", "B", "C", "D"], "answer": 0, "explanation": "..."}]'
+                            ].join('\n')
+                        }]
+                    }]
+                })
+            }
+        );
+
+        if (!response.ok) {
+            return res.status(200).json({ questions: generateMockQuiz(topic), source: 'local' });
+        }
+
+        const data = await response.json();
+        const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || '';
+        const cleanedText = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
+
+        try {
+            const parsed = JSON.parse(cleanedText);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                return res.status(200).json({ questions: parsed, source: 'gemini' });
+            }
+        } catch (_) {}
+
+        return res.status(200).json({ questions: generateMockQuiz(topic), source: 'local' });
+    } catch (error) {
+        console.error('Quiz generation error:', error);
+        return res.status(200).json({ questions: generateMockQuiz(req.body?.topic), source: 'local' });
     }
 });
 

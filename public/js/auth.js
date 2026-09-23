@@ -46,21 +46,27 @@ function loadTheme() {
 // ============================================
 // FORM TOGGLE
 // ============================================
-loginToggle.addEventListener('click', () => {
-    loginForm.classList.add('active');
-    registerForm.classList.remove('active');
-    loginToggle.classList.add('active');
-    registerToggle.classList.remove('active');
-    clearErrors();
-});
+const toggleIndicator = document.getElementById('toggleIndicator');
 
-registerToggle.addEventListener('click', () => {
-    registerForm.classList.add('active');
-    loginForm.classList.remove('active');
-    registerToggle.classList.add('active');
-    loginToggle.classList.remove('active');
+function setAuthMode(mode) {
+    if (mode === 'login') {
+        loginForm.classList.add('active');
+        registerForm.classList.remove('active');
+        loginToggle.classList.add('active');
+        registerToggle.classList.remove('active');
+        if (toggleIndicator) toggleIndicator.classList.remove('right');
+    } else {
+        registerForm.classList.add('active');
+        loginForm.classList.remove('active');
+        registerToggle.classList.add('active');
+        loginToggle.classList.remove('active');
+        if (toggleIndicator) toggleIndicator.classList.add('right');
+    }
     clearErrors();
-});
+}
+
+loginToggle.addEventListener('click', () => setAuthMode('login'));
+registerToggle.addEventListener('click', () => setAuthMode('register'));
 
 // ============================================
 // LOGIN
@@ -313,12 +319,210 @@ function generateId() {
 }
 
 // ============================================
+// ANIMATIONS & VISUAL EFFECTS
+// ============================================
+function initAmbientCanvas() {
+    const canvas = document.getElementById('ambientCanvas');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
+
+    window.addEventListener('resize', () => {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+    });
+
+    const particles = [];
+    const count = Math.min(55, Math.floor((width * height) / 22000));
+
+    for (let i = 0; i < count; i++) {
+        particles.push({
+            x: Math.random() * width,
+            y: Math.random() * height,
+            vx: (Math.random() - 0.5) * 0.7,
+            vy: (Math.random() - 0.5) * 0.7,
+            radius: Math.random() * 2 + 1,
+            color: Math.random() > 0.5 ? '108, 99, 255' : '0, 201, 167'
+        });
+    }
+
+    let mouse = { x: -1000, y: -1000 };
+    window.addEventListener('mousemove', (e) => {
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+    });
+
+    function render() {
+        ctx.clearRect(0, 0, width, height);
+
+        for (let i = 0; i < particles.length; i++) {
+            const p = particles[i];
+            p.x += p.vx;
+            p.y += p.vy;
+
+            if (p.x < 0) p.x = width;
+            if (p.x > width) p.x = 0;
+            if (p.y < 0) p.y = height;
+            if (p.y > height) p.y = 0;
+
+            // Draw particle
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(${p.color}, 0.8)`;
+            ctx.fill();
+
+            // Connect neighboring particles with neon lines
+            for (let j = i + 1; j < particles.length; j++) {
+                const p2 = particles[j];
+                const dx = p.x - p2.x;
+                const dy = p.y - p2.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                if (dist < 125) {
+                    ctx.beginPath();
+                    ctx.moveTo(p.x, p.y);
+                    ctx.lineTo(p2.x, p2.y);
+                    ctx.strokeStyle = `rgba(108, 99, 255, ${0.22 * (1 - dist / 125)})`;
+                    ctx.lineWidth = 0.9;
+                    ctx.stroke();
+                }
+            }
+
+            // Mouse interactive connection
+            const mdx = p.x - mouse.x;
+            const mdy = p.y - mouse.y;
+            const mdist = Math.sqrt(mdx * mdx + mdy * mdy);
+            if (mdist < 140) {
+                ctx.beginPath();
+                ctx.moveTo(p.x, p.y);
+                ctx.lineTo(mouse.x, mouse.y);
+                ctx.strokeStyle = `rgba(0, 201, 167, ${0.4 * (1 - mdist / 140)})`;
+                ctx.lineWidth = 1.2;
+                ctx.stroke();
+            }
+        }
+
+        requestAnimationFrame(render);
+    }
+    render();
+}
+
+function init3DCardTilt() {
+    const cards = [document.getElementById('authCard'), document.getElementById('heroCard')].filter(Boolean);
+    if (cards.length === 0) return;
+
+    window.addEventListener('mousemove', (e) => {
+        cards.forEach(card => {
+            const rect = card.getBoundingClientRect();
+            const cardX = rect.left + rect.width / 2;
+            const cardY = rect.top + rect.height / 2;
+            const deltaX = (e.clientX - cardX) / (window.innerWidth / 2);
+            const deltaY = (e.clientY - cardY) / (window.innerHeight / 2);
+
+            const tiltX = -deltaY * 7;
+            const tiltY = deltaX * 7;
+
+            card.style.transform = `perspective(1000px) rotateX(${tiltX.toFixed(2)}deg) rotateY(${tiltY.toFixed(2)}deg) translateZ(8px)`;
+        });
+    });
+
+    window.addEventListener('mouseleave', () => {
+        cards.forEach(card => {
+            card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0)';
+        });
+    });
+}
+
+function initInteractiveLogo() {
+    const logo = document.getElementById('interactiveLogo');
+    if (!logo) return;
+    logo.addEventListener('click', () => {
+        logo.style.transform = 'scale(1.25) rotate(12deg)';
+        showToast('🤖 Hey there! Ready to study smarter with AI?', 'info');
+        setTimeout(() => {
+            logo.style.transform = '';
+        }, 350);
+    });
+}
+
+function initLiveHomeDemo() {
+    const demoChatFeed = document.getElementById('demoChatFeed');
+    const demoChatForm = document.getElementById('demoChatForm');
+    const demoInput = document.getElementById('demoInput');
+    const promptChips = document.querySelectorAll('.demo-prompt-chip');
+
+    async function sendDemoMessage(userText) {
+        if (!userText || !demoChatFeed) return;
+
+        const userBubble = document.createElement('div');
+        userBubble.className = 'demo-chat-bubble demo-bubble-user';
+        userBubble.textContent = userText;
+        demoChatFeed.appendChild(userBubble);
+
+        const aiBubble = document.createElement('div');
+        aiBubble.className = 'demo-chat-bubble demo-bubble-ai';
+        aiBubble.textContent = 'Thinking...';
+        demoChatFeed.appendChild(aiBubble);
+        demoChatFeed.scrollTop = demoChatFeed.scrollHeight;
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/api/chat/send`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: userText })
+            });
+            const data = await res.json();
+            const reply = data?.reply || 'I am ready to help you master this concept!';
+
+            aiBubble.textContent = '';
+            let i = 0;
+            const timer = setInterval(() => {
+                aiBubble.textContent += reply.charAt(i);
+                i++;
+                demoChatFeed.scrollTop = demoChatFeed.scrollHeight;
+                if (i >= reply.length) {
+                    clearInterval(timer);
+                }
+            }, 12);
+        } catch (_) {
+            aiBubble.textContent = 'Here is a quick breakdown of this topic! Feel free to ask more questions.';
+        }
+    }
+
+    if (demoChatForm && demoInput) {
+        demoChatForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const text = demoInput.value.trim();
+            if (!text) return;
+            demoInput.value = '';
+            sendDemoMessage(text);
+        });
+    }
+
+    promptChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+            const prompt = chip.getAttribute('data-prompt');
+            if (prompt) sendDemoMessage(prompt);
+        });
+    });
+}
+
+// ============================================
 // INITIALIZATION
 // ============================================
 document.addEventListener('DOMContentLoaded', () => {
     const user = getCurrentUser();
     if (user) {
-        window.location.href = '/dashboard.html';
+        const navCta = document.querySelector('.nav-cta-group a');
+        if (navCta) {
+            navCta.textContent = `Open Dashboard (${user.name}) 🚀`;
+            navCta.href = '/dashboard.html';
+        }
+        const heroPrimary = document.querySelector('.btn-hero-primary');
+        if (heroPrimary) {
+            heroPrimary.textContent = 'Open Dashboard 🚀';
+            heroPrimary.href = '/dashboard.html';
+        }
     }
 
     loadTheme();
@@ -327,4 +531,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (rememberMeInput) {
         rememberMeInput.checked = rememberMe;
     }
+
+    initAmbientCanvas();
+    init3DCardTilt();
+    initInteractiveLogo();
+    initLiveHomeDemo();
 });
