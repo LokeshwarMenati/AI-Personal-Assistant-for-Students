@@ -30,3 +30,6 @@ logs/
 # Temp files
 tmp/
 temp/
+
+# Vercel
+.vercel

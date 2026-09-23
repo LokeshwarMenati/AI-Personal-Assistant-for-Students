@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/upload-pdf",
+      "destination": "/api/index.js"
+    },
+    {
+      "source": "/chat",
+      "destination": "/api/index.js"
+    }
+  ]
+}

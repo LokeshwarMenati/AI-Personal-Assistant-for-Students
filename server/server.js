@@ -671,15 +671,17 @@ io.on('connection', (socket) => {
     });
 });
 
-server.listen(PORT, () => {
-    console.log(`
+if (!process.env.VERCEL) {
+    server.listen(PORT, () => {
+        console.log(`
     ╔════════════════════════════════════════╗
     ║   AI Personal Assistant for Students   ║
     ║          Server Started                ║
     ║         Port: ${PORT}                    ║
     ║    http://localhost:${PORT}             ║
     ╚════════════════════════════════════════╝
-    `);
-});
+        `);
+    });
+}
 
 module.exports = app;
